@@ -242,13 +242,6 @@
         <button type="button" class="pill" data-v="Round Trip">Round Trip</button>
         <button type="button" class="pill" data-v="Local">Local</button>
       </div>
-      <div class="field" style="margin-top:12px"><label>When do you need the cab?</label>
-        <div class="pills" id="whenPills">
-          <button type="button" class="pill on" data-v="now">Ride Now</button>
-          <button type="button" class="pill" data-v="schedule">Schedule a Ride</button>
-        </div>
-        <p id="whenNote" style="font-size:13px;color:var(--muted);margin:6px 0 0">Cab for right now — date &amp; time set automatically.</p>
-      </div>
       <div class="grid2">
         <div class="field"><label for="pickup">Pickup Location</label>
           <div class="loc-wrap">
@@ -403,7 +396,8 @@
     <div class="revs">
       <div class="rev"><b>Your review could be first.</b><br>Travelled with MTT recently? Tell us on WhatsApp — your words go here, exactly as you said them.</div>
       <div class="rev"><b>Real reviews only.</b><br>We don't write our own praise. Every review here will come from a real trip, with the customer's own words.</div>
-      <div class="rev"><b>Coming soon.</b><br>Patna → Gaya, Darbhanga → Purniya, Muzaffarpur → Bodh Gaya — the first trip stories land here.</div>
+      <div class="rev"><b>Bihar, door to door.</b><br>Airport to village, city to city — one cab across Bihar, any hour, day or night.</div>
+      <div class="rev"><b>No app. No advance payment.</b><br>Pick a route, send it on WhatsApp, and your fare is confirmed before you ride. Booking takes less than a minute.</div>
     </div>
   </div>
 </section>
@@ -620,11 +614,14 @@ function haversineKm(a,b){
 }
 // ---- Popular routes: city pairs — each Book This Route fills pickup + drop and the map
 const ROUTES = [
-  ["Muzaffarpur","Patna"],["Muzaffarpur","Darbhanga"],["Muzaffarpur","Gaya"],
-  ["Patna","Gaya"],["Patna","Darbhanga"],
+  ["Muzaffarpur","Patna"],
+  ["Patna","Darbhanga"],
   ["Gaya","Patna"],
   ["Darbhanga","Patna"],
-  ["Bhagalpur","Patna"],["Purniya","Patna"],["Motihari","Patna"],["Chapra","Patna"]
+  ["Bhagalpur","Patna"],
+  ["Purniya","Patna"],
+  ["Motihari","Patna"],
+  ["Chapra","Patna"]
 ];
 function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
 const routeGroups = document.getElementById('routeGroups');
@@ -676,28 +673,7 @@ d.min=todayStr();
 d.value=todayStr();
 const _now = new Date();
 document.getElementById('time').value = String(_now.getHours()).padStart(2,'0') + ':' + String(_now.getMinutes()).padStart(2,'0');
-// ---- Ride Now vs Schedule a Ride: now locks date/time to today+now; schedule opens them for a custom pick
-function setWhen(mode){
-  const dd=document.getElementById('date'), tm=document.getElementById('time'), note=document.getElementById('whenNote');
-  const now=new Date();
-  if(mode==='now'){
-    dd.value=todayStr();
-    tm.value=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-    dd.disabled=true; tm.disabled=true;
-    note.textContent='Cab for right now — date & time set automatically.';
-  } else {
-    dd.disabled=false; tm.disabled=false;
-    note.textContent='Choose your pickup date & time below.';
-  }
-}
-document.querySelectorAll('#whenPills .pill').forEach(function(p){
-  p.addEventListener('click', function(){
-    document.querySelectorAll('#whenPills .pill').forEach(function(x){ x.classList.remove('on'); });
-    p.classList.add('on');
-    setWhen(p.dataset.v);
-  });
-});
-setWhen('now');
+// Date & time stay editable, pre-filled to today + now above.
 // ---- Cab selection is shared: form pills + fleet cards stay in sync
 function selectCab(v){
   document.querySelectorAll('#cabSelect .cabopt').forEach(function(o){ o.classList.toggle('on', o.dataset.v === v); });
@@ -790,7 +766,6 @@ function sendBooking(){
     'Hello MTT! I want to book a cab.',
     '',
     'Trip type: '+trip,
-    'When: '+(document.querySelector('#whenPills .pill.on').dataset.v==='now'?'Now':'Scheduled'),
     'Pickup: '+pickup,
     'Drop: '+drop,
     'Cab: '+cab,
